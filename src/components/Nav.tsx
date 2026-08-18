@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { NAV_LINKS } from "../data";
 import { scrollToTarget } from "../lib/scroll";
 import { ambience } from "../lib/audio";
+import { downloadSourceZip } from "../lib/downloadSource";
 
 function BrandMark() {
   return (
@@ -15,6 +16,19 @@ function BrandMark() {
 export default function Nav() {
   const [soundOn, setSoundOn] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [zipState, setZipState] = useState<"idle" | "busy" | "done">("idle");
+
+  const grabSource = async () => {
+    if (zipState === "busy") return;
+    setZipState("busy");
+    try {
+      await downloadSourceZip();
+      setZipState("done");
+      window.setTimeout(() => setZipState("idle"), 2600);
+    } catch {
+      setZipState("idle");
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -71,6 +85,37 @@ export default function Nav() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={grabSource}
+            aria-label="Download the full project source as a zip"
+            title="Download the full project source (.zip)"
+            className={`h-9 px-3 flex items-center gap-2 border transition-all duration-300 ${
+              zipState === "done"
+                ? "border-jade/70 text-jade bg-jade/10"
+                : "border-line text-ink/60 hover:text-ink hover:border-ink/40"
+            }`}
+          >
+            {zipState === "done" ? (
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>
+                <path d="M2 6.5l2.8 2.8L10 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            ) : (
+              <svg
+                width="12"
+                height="13"
+                viewBox="0 0 12 13"
+                fill="none"
+                aria-hidden
+                className={zipState === "busy" ? "animate-bounce" : ""}
+              >
+                <path d="M6 1v7M3 5.5L6 8.5l3-3M1.5 11.5h9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+            <span className="text-[11px] font-bold tracking-[0.18em] uppercase">
+              {zipState === "busy" ? "Zipping" : zipState === "done" ? "Saved" : "Source"}
+            </span>
+          </button>
+
           <button
             onClick={toggleSound}
             aria-label={soundOn ? "Mute ambience" : "Play ambience"}

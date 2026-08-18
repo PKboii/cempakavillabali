@@ -2,6 +2,7 @@ import BookingForm from "../components/BookingForm";
 import { Reveal, RevealLine } from "../components/Reveal";
 import { MARQUEE_ITEMS } from "../data";
 import { scrollToTarget } from "../lib/scroll";
+import { downloadSourceZip } from "../lib/downloadSource";
 
 export function BookStay() {
   return (
@@ -87,6 +88,12 @@ export function Footer() {
           >
             stay@villacahaya.id
           </a>
+          <button
+            onClick={() => void downloadSourceZip()}
+            className="text-[13px] text-ink/70 hover:text-flare transition-colors duration-300 border-b border-line hover:border-gold pb-0.5"
+          >
+            Download source (.zip)
+          </button>
           <button
             onClick={() => scrollToTarget(0)}
             className="group flex items-center gap-2.5 border border-line px-4 py-2.5 text-[11px] font-bold tracking-[0.2em] uppercase text-ink/70 hover:text-flare hover:border-gold transition-all duration-300"
