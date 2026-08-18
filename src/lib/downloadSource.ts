@@ -1,7 +1,7 @@
 import JSZip from "jszip";
 
 /**
- * Bundles the entire project source into a .zip client-side.
+ * Bundles the entire project source into a zip Blob, client-side.
  * Files are pulled from the real source tree at build time via ?raw imports,
  * so the archive always matches what is running.
  */
@@ -10,7 +10,6 @@ const files = import.meta.glob(
     "/index.html",
     "/package.json",
     "/vite.config.js",
-    "/vite.config.ts",
     "/tsconfig.json",
     "/src/**/*.ts",
     "/src/**/*.tsx",
@@ -44,19 +43,25 @@ Requires Node 18+.
 - Three.js (scene, custom GLSL sky & water shaders)
 - Lenis (smooth scrolling)
 - Tailwind CSS v4
-- JSZip (source download)
+- JSZip (in-browser source bundle)
 - WebAudio (generative gamelan)
 
 ## Publish to GitHub Pages (optional)
 
 1. \`npm run build\`
-2. Push the \`dist/\` folder to a \`gh-pages\` branch, or use the
-   "Deploy from a branch" setting with \`/dist\` as the source.
+2. Push the \`dist/\` folder to a \`gh-pages\` branch, or point
+   "Deploy from a branch" at \`/dist\`.
 
 — bundled automatically from the live site, enjoy.
 `;
 
-export async function downloadSourceZip(): Promise<number> {
+export interface SourceBundle {
+  blob: Blob;
+  fileCount: number;
+  bytes: number;
+}
+
+export async function buildSourceZip(): Promise<SourceBundle> {
   const zip = new JSZip();
   const root = zip.folder("villa-cahaya")!;
   let count = 0;
@@ -67,10 +72,7 @@ export async function downloadSourceZip(): Promise<number> {
     count++;
   });
   root.file("README.md", README);
-  root.file(
-    ".gitignore",
-    "node_modules\ndist\n.DS_Store\n*.local\n"
-  );
+  root.file(".gitignore", "node_modules\ndist\n.DS_Store\n*.local\n");
 
   const blob = await zip.generateAsync({
     type: "blob",
@@ -78,14 +80,18 @@ export async function downloadSourceZip(): Promise<number> {
     compressionOptions: { level: 9 },
   });
 
+  return { blob, fileCount: count + 2, bytes: blob.size };
+}
+
+/** Programmatic save attempt (may be blocked inside sandboxed previews). */
+export function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "villa-cahaya-source.zip";
+  a.download = filename;
+  a.rel = "noopener";
   document.body.appendChild(a);
   a.click();
   a.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 5000);
-
-  return count;
+  window.setTimeout(() => URL.revokeObjectURL(url), 30000);
 }

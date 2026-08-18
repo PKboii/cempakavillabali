@@ -5,6 +5,7 @@ import { setLenis } from "./lib/scroll";
 import Cursor from "./components/Cursor";
 import Nav from "./components/Nav";
 import ProgressRail from "./components/ProgressRail";
+import SourceOverlay from "./components/SourceOverlay";
 import Opening from "./sections/Opening";
 import { Arrival, Water, Pavilion } from "./sections/Story";
 import { Rituals, Moments } from "./sections/RitualsMoments";
@@ -68,6 +69,7 @@ export default function App() {
       <Cursor />
       <Nav />
       <ProgressRail />
+      <SourceOverlay />
 
       <main className="relative z-10">
         <Opening />
