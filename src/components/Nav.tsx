@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { NAV_LINKS } from "../data";
 import { scrollToTarget } from "../lib/scroll";
 import { ambience } from "../lib/audio";
-import { downloadSourceZip } from "../lib/downloadSource";
 
 function BrandMark() {
   return (
@@ -22,6 +21,8 @@ export default function Nav() {
     if (zipState === "busy") return;
     setZipState("busy");
     try {
+      // loaded on demand so the initial page never depends on the bundler
+      const { downloadSourceZip } = await import("../lib/downloadSource");
       await downloadSourceZip();
       setZipState("done");
       window.setTimeout(() => setZipState("idle"), 2600);

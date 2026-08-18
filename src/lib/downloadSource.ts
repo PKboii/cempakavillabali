@@ -9,9 +9,13 @@ const files = import.meta.glob(
   [
     "/index.html",
     "/package.json",
+    "/vite.config.js",
     "/vite.config.ts",
     "/tsconfig.json",
-    "/src/**/*.{ts,tsx,css}",
+    "/src/**/*.ts",
+    "/src/**/*.tsx",
+    "/src/**/*.css",
+    "!/src/**/*.d.ts",
   ],
   { eager: true, query: "?raw", import: "default" }
 ) as Record<string, string>;
